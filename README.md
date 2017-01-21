@@ -49,8 +49,10 @@ urlpatterns = [
    url(r'^admin/reports/', include("reports.urls", namespace="reports")),
    url(r'^admin/', admin.site.urls),
 ]
+```
 
-reports.urls.py:
+```
+# reports.urls.py:
 from django.conf.urls import url
 
 from reports.views import show_report
