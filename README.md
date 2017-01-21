@@ -35,7 +35,9 @@ INSTALLED_APPS = (
 
 ## Step 2: Map your URLs
 
-It will make your life hella easier to design django apps along this workflow: define url → update view → update model. The majority of the out-of-the-box admin is model driven with just two views available to override: list records, edit record. As your report is neither of these you will need custom url, view, and template. If you want to create adhoc reports you would also want to create a custom form. Anyways, urls - 
+It will make your life hella easier to design django apps along this workflow: define url → update view → update model. The majority of the out-of-the-box admin is model driven with just two views available to override: list records, edit record. As your report is neither of these you will need a custom url, view, and template. If you want to create adhoc reports you may also want to create a custom form for each report. 
+
+Anyways, urls:
 
 ```
 # reporty.urls.py
@@ -59,12 +61,16 @@ urlpatterns = [
 ]
 ```
 
-So, for example, if you had a users report perhaps you would perhaps pass the name of the report in the url like /admin/reports/users/ and this would map to your view function with a param of report_type=”users”
+For example, if you had a `users` report you would pass the name of the report in the url like `/admin/reports/users/` and this would map to your view function with a param of `report_type="users"`
 
 
 ## Step 3: Write your custom view
 
-Views should be mad lightweight. That means using models to get/format data and then whipping it together with simple, context specific functions in the view. We decorate the functions with login_required so that they use admin auth. You would most likely be passing filters through a form - but for now we will just take the report_type, instantiate the correct subclass, run the report, format the report, return the view.
+Views should be light-weight. That means using models to get/format data and then whipping it together with simple, context specific functions in the view. We decorate the functions with `@login_required` so that they use admin auth. You would most likely be passing filters through a form - but for now we will:
+  - instantiate the correct subclass from the `report_type`
+  - run the report
+  - format the report
+  - return the view
 
 ```
 # reports.views.py
@@ -101,7 +107,7 @@ def show_report(request, report_type):
 
 # Step 4: Ok, now you’re cooking. Models Time!
 
-You could keep references to your available reports in the database but I just threw together a quick helper.py to map the url to the correct class:
+You could keep references to your available reports in the database but I just threw together a quick helpers.py to map the url to the correct class:
 
 ```
 # reports.helpers.py
@@ -196,10 +202,13 @@ class EmailReport(Report):
 
 ## Step 5: Make your template
 
-In your reports app create a folder called “/templates/admin/reports”
-This is your override folder for this app. If you create a file with the same name as a base admin template file, it will override that template. But you can also create your own custom templates that map to your views (created above). 
-Within your custom templates you should extend the admin/base_site.html so that your new page looks like all the other pages in your admin. You can override blocks like a boss. Just inspect the default base_site.html to see what blocks are available for override.
-Default admin templates are located in the django package at: ...path_to_your_virtual_env.../site-packages/django/contrib/admin/templates/admin/
+In your reports app create a folder called `/templates/admin/reports`
+
+This is your override folder for the app. If you create a file with the same name as a base-admin template file it will override that template. But you can also create your own custom templates that map to your views.
+
+Within your custom templates you should extend the `admin/base_site.html` so that your new page looks like all the other pages in the admin. You can override blocks like a boss. Just inspect the default `base_site.html` to see what blocks are available for override.
+
+Default admin templates are located in the django package at: `...path_to_your_virtual_env.../site-packages/django/contrib/admin/templates/admin/`
 
 
 ```
