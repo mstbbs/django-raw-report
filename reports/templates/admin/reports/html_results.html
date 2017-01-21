@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  {% if records %}
+    <table class="table">
+      <thead>
+      <tr>
+        {% for header in headers %}
+          <th>{{ header }}</th>
+        {% endfor %}
+      </tr>
+      </thead>
+      <tbody>
+      {% for record in records %}
+        <tr>
+          {% for value in record %}
+            <td>{{ value }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No records match your search criteria.</p>
+  {% endif %}
+{% endblock %}
