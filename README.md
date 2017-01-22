@@ -37,7 +37,7 @@ INSTALLED_APPS = (
 
 It will make your life hella easier to design django apps along this workflow: define url → update view → update model. The majority of the out-of-the-box admin is model driven with just two views available to override: list records, edit record. As your report is neither of these you will need a custom url, view, and template. If you want to create adhoc reports you may also want to create a custom form for each report. 
 
-Anyways, urls:
+Anyways, urls. This first file is the _project's_ main urls.py file. Here we create our custom admin url for our app. We will route all urls starting with `/admin/reports/` (notice there is no closing `$`) to our report app's urls.py file:
 
 ```
 # reporty.urls.py
@@ -51,6 +51,8 @@ urlpatterns = [
 ]
 ```
 
+Ok, now we are in our report app's urls.py file. I tossed two url examples in here. The first one sets a `report_name` variable to the url path and passes it to a `show_report` function. The second url would be used for a general report's menu screen (not part of this example):
+
 ```
 # reports.urls.py:
 from django.conf.urls import url
@@ -63,7 +65,7 @@ urlpatterns = [
 ]
 ```
 
-For example, if you had a `users` report you would pass the name of the report in the url like `/admin/reports/users/` and this would map to your view function with a param of `report_type="users"`
+In the examples that follow I have a single report named `users`. Navigating to `/admin/reports/email/` will pass `report_type="email"` to `reports.views.show_report()`.
 
 
 ## Step 3: Write your custom view
@@ -84,11 +86,18 @@ from reports.helpers import get_report_type
 
 @login_required(login_url='/admin/login/')
 def report_menu(request):
+   """
+   view used to list all reports available.
+   """
    return render(request, 'admin/reports/report_menu.html')
 
 
 @login_required(login_url='/admin/login/')
 def show_report(request, report_type):
+   """
+   a single report. 
+   TODO: try/except for reports that don't exist.
+   """
    context = {}
    # you could create a new form, in forms.py and import it here
    # then you could check if the request is GET or POST and either
@@ -169,7 +178,7 @@ class EmailReport(Report):
        # init your connection
        cursor = connections["default"].cursor()
 
-       # build up a where clause from passed filters
+       # build up a where clause from passed/cleaned filters
        where_clause = """
                      AND au.email = "{0}"
                      ORDER BY au.date_joined
@@ -192,7 +201,7 @@ class EmailReport(Report):
 
        def fetch_all_as_ordered_dict():
            """
-           closure to format results as a usable an ordered dict
+           closure to format results as an ordered dict
            :return: order dictionary
            """
            columns = [col[0] for col in cursor.description]
